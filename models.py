@@ -1,19 +1,15 @@
+from . import db
+from flask_login import UserMixin
+from sqlalchemy.sql import func
+
+
 from datetime import datetime
 from flask import Flask,render_template,url_for,flash,redirect
-from flask_sqlalchemy import SQLAlchemy
-from forms import *
 from flask_appbuilder.models.mixins import ImageColumn
 
-app = Flask(__name__)
-
-app.config['SECRET_KEY']='1213456'
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
-db=SQLAlchemy(app)
-
-
-class Usuarios(db.Model):
+class Usuarios(db.Model,UserMixin):
     id=db.Column(db.Integer, primary_key=True,autoincrement=True)
-    nombre=db.Column(db.String(30),unique=False,nullable=False)
+    nombre=db.Column(db.String(150),unique=False,nullable=False)
     apellido_paterno=db.Column(db.String(30),unique=False,nullable=False)
     apellido_materno=db.Column(db.String(30),unique=False,nullable=False)
     email=db.Column(db.String(50),unique=False,nullable=False)
@@ -32,14 +28,14 @@ class Descuentos(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     producto=db.Column(db.Integer, db.ForeignKey('producto.id'))
     cantidad=db.Column(db.Integer,unique=False,nullable=False)
-    fecha_inicio=db.Column(db.DateTime,unique=False,nullable=False)
     fecha_fin=db.Column(db.DateTime,unique=False,nullable=False)
+    fecha_inicio=db.Column(db.DateTime(timezone=True),unique=False,nullable=False,default=func.now())
     status=db.Column(db.Boolean,unique=False,nullable=False)
-    
+
 class Mermas(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     fecha_merma=db.Column(db.DateTime,unique=False,nullable=False)
-    producto=db.Column(db.Integer, db.ForeignKey('producto.id'))
+    producto_id=db.Column(db.Integer, db.ForeignKey('producto.id'))
     cantidad=db.Column(db.Integer,unique=False,nullable=False)
     status=db.Column(db.Boolean,unique=False,nullable=False)
 class Productos(db.Model):
@@ -58,6 +54,7 @@ class Productos(db.Model):
         nullable=False)
     color = db.Column(db.Integer, db.ForeignKey('color.id'),
         nullable=False)
+    mermas = db.relationship('Mermas')
 class Modelos(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     nombre=db.Column(db.String(50),unique=False,nullable=False)
