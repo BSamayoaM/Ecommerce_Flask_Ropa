@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
-
+from forms import RegistrationForm,LoginForm
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -13,10 +13,15 @@ def crear_app():
     app.config['SECRET_KEY'] = "123456"
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
-    from .views import views
-    from .auth import auth
-    app.register_blueprint(views,url_prefix='/')
-    app.register_blueprint(auth,url_prefix='/')
+    from productos.routes import productos
+    from compras.routes import compras
+    from usuarios.routes import usuarios
+    from ventas.routes import ventas
+    app.register_blueprint(productos)
+    app.register_blueprint(compras)
+    app.register_blueprint(usuarios)
+    app.register_blueprint(ventas)
+
     from models import Usuarios,Productos
     crear_bd(app)
     login_manager = LoginManager()
